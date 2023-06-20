@@ -33,5 +33,5 @@ log:
   log_rotate_size: 1
   log_backup_count: 7
 #
-# opqBot 地址
-chromedp_remote_debug_url: "ws://127.0.0.1:9222"
+# opqBot 地址 ws://127.0.0.1:9222
+chromedp_remote_debug_url: ""

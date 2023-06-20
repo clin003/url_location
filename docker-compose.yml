@@ -15,7 +15,7 @@ services:
       CHROMEDP_REMOTE_DEBUG_URL: ws://headless_shell:9222
       TZ: Asia/Shanghai
     ports:
-      - "8081:8080"
+      - "8080:8080"
 
   headless_shell:
     image:  chromedp/headless-shell

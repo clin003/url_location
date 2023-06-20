@@ -1,7 +1,7 @@
 url_location
 
 
-//远程调试地址
+//远程调试地址 ws://127.0.0.1:9222 http://127.0.0.1:9222
 
 CHROMEDP_REMOTE_DEBUG_URL
 

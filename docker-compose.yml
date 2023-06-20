@@ -11,8 +11,6 @@ services:
       - ./conf:/app/conf
       - ./autocert:/app/autocert
       - ./log:/app/log
-      # - ./upload:/app/upload
-      # - /tmp:/app/upload
     environment:
       CHROMEDP_REMOTE_DEBUG_URL: ws://headless_shell:9222
       TZ: Asia/Shanghai
@@ -22,15 +20,5 @@ services:
   headless_shell:
     image:  chromedp/headless-shell
     restart: always
-    # build: ./..
-    # command: /app/pbbot_app_huizhuanfa -c=/app/conf/config.yaml
-    # volumes:
-    #   - ./conf:/app/conf
-    #   - ./autocert:/app/autocert
-    #   - ./log:/app/log
-    #   - ./upload:/app/upload
-      # - /tmp:/app/upload
-    # environment:
-    #   TZ: Asia/Shanghai
     ports:
       - "9222:9222"

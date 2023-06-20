@@ -35,9 +35,9 @@ run:
 
 clean:
 	@ rm -f db.kns $(APP)-* $(APP) $(APP)*.rpm $(APP)*.deb
-	@ rm -rf ./conf ./log ./upload
+	@ rm -rf ./conf ./log ./upload ./autocert
 	@ rm -f  ./cmd/$(APP)/$(APP)*.exe ./cmd/$(APP)/$(APP)-* ./cmd/$(APP)/*.kns  ./cmd/$(APP)/$(APP)
-	@ rm -rf ./cmd/$(APP)/conf/config.yaml ./cmd/$(APP)/log ./cmd/$(APP)/upload
+	@ rm -rf ./cmd/$(APP)/conf/config.yaml ./cmd/$(APP)/log ./cmd/$(APP)/upload ./cmd/$(APP)/autocert
 
 gitinit:	
 	git init

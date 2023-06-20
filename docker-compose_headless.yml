@@ -1,0 +1,7 @@
+version: "3"
+services:
+  headless-shell:
+    image:  chromedp/headless-shell
+    restart: always
+    ports:
+      - "9222:9222"

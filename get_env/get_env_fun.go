@@ -21,3 +21,17 @@ func GetChromedpRemoteDebuggingUrl() string {
 	return ""
 	// return os.Getenv("CHROMEDP_REMOTE_DEBUG_URL")
 }
+func GetChromedpRemoteDebuggingPort() string {
+	tmpText := viper.GetString("chromedp_remote_debug_port")
+	if len(tmpText) > 0 {
+		// fmt.Println("GetChromedpRemoteDebuggingUrl", tmpText)
+		return tmpText
+	}
+	tmpText = os.Getenv("CHROMEDP_REMOTE_DEBUG_PORT")
+	if len(tmpText) > 0 {
+		// fmt.Println("GetChromedpRemoteDebuggingUrl", tmpText)
+		return tmpText
+	}
+	return "9222"
+	// return os.Getenv("CHROMEDP_REMOTE_DEBUG_URL")
+}

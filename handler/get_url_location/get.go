@@ -96,5 +96,6 @@ func getUrlLocation(urlStr string) (string, error) {
 func getUrlOriginUrl(urlStr string) (string, error) {
 	remoteDebuggingUrl := get_env.GetChromedpRemoteDebuggingUrl()
 	remoteDebuggingPort := get_env.GetChromedpRemoteDebuggingPort()
+	// fmt.Println("getUrlOriginUrl", remoteDebuggingUrl, remoteDebuggingPort)
 	return chromedp_location.GetUrlLocation(urlStr, remoteDebuggingUrl, remoteDebuggingPort, 1)
 }

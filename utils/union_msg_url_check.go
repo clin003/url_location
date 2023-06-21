@@ -13,9 +13,25 @@ func UnionMsgUrlCheck(msgContext string) bool {
 	if !strings.HasPrefix(urlText, "http") {
 		return false
 	}
-	unionMsgDomain := get_env.GetUnionMsgDomain()
-	unionMsgDomainList := util.KeyworldListParse(unionMsgDomain)
-	for _, v := range unionMsgDomainList {
+	domainStr := get_env.GetUnionMsgDomain()
+	domainList := util.KeyworldListParse(domainStr)
+	for _, v := range domainList {
+		vc := v
+		if strings.EqualFold(urlText, vc) || strings.Contains(urlText, vc) {
+			return true
+		}
+	}
+	return false
+}
+
+func CanWaitUrlCheck(msgContext string) bool {
+	urlText := strings.ToLower(msgContext)
+	if !strings.HasPrefix(urlText, "http") {
+		return false
+	}
+	domainStr := get_env.GetCanWaitDomain()
+	domainList := util.KeyworldListParse(domainStr)
+	for _, v := range domainList {
 		vc := v
 		if strings.EqualFold(urlText, vc) || strings.Contains(urlText, vc) {
 			return true

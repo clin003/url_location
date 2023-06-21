@@ -186,53 +186,11 @@ func getUrlLocationByCtxFunc(
 	navigateUrlStr string, remoteDebuggingUrl, remoteDebuggingPort string, sleepSecondN int,
 	ctxFun func(remoteDebuggingUrl, remoteDebuggingPort string) (context.Context, context.CancelFunc),
 ) (retOriginUrl string, err error) {
-	// allocCtx, cancel := chromedp.NewRemoteAllocator(context.Background(), remoteDebuggingUrl)
-	// defer cancel()
-
-	// // 初始化chromedp的上下文，后续这个页面都使用这个上下文进行操作
-	// chromedpCtx, cancel := chromedp.NewContext(
-	// 	allocCtx,
-	// 	// 设置日志方法
-	// 	chromedp.WithLogf(log.Printf),
-	// 	// chromedp.NoRedirect(true),
-	// )
-	// // 通常可以使用 defer cancel() 去取消
-	// // 但是在Windows环境下，我们希望程序能顺带关闭掉浏览器
-	// // 如果不希望浏览器关闭，使用cancel()方法即可
-	// defer cancel()
-
-	// // defer chromedp.Cancel(ctx)
-
-	// timeOut := time.Second * 10
-	// // 创建新的chromedp上下文对象，超时时间的设置不分先后
-	// // 注意第二个返回的参数是cancel()
-	// timeCtx, cancel := context.WithTimeout(chromedpCtx, timeOut)
-	// defer cancel()
 
 	timeCtx, cancel := ctxFun(remoteDebuggingUrl, remoteDebuggingPort)
 	defer cancel()
-	// ch := chromedp.WaitNewTarget(timeCtx, func(info *target.Info) bool {
-	// 	return info.URL != ""
-	// })
 
-	if err = chromedp.Run(timeCtx,
-		chromedp.Navigate(navigateUrlStr),
-		// task(navigateUrlStr),
-		// chromedp.Sleep(sleepTime),
-	// chromedp.Location(&urlLocation),
-	); err != nil {
-		err = fmt.Errorf("打开网址失败(%s):%w", navigateUrlStr, err)
-		return "", err
-	}
-	// newCtx, cancel := chromedp.NewContext(timeCtx, chromedp.WithTargetID(<-ch))
-	// defer cancel()
-	// fmt.Println("hello(newCtx)")
-	// sleepTime := time.Duration(sleepSecondN) * time.Second
 	var urlLocation string
-	// defer func() {
-	// 	fmt.Println("defer")
-	// }()
-
 	cUrlLocation := make(chan string)
 	defer close(cUrlLocation)
 	c := make(chan string)
@@ -248,18 +206,15 @@ func getUrlLocationByCtxFunc(
 		}()
 		for {
 			select {
-			case <-timeCtx.Done():
-				return
+			// case <-timeCtx.Done():
+			// 	return
 			case s, ok := (<-c):
 				if ok {
+					cUrlLocation <- s
 					fmt.Println("received", s)
-					if utils.UnionMsgUrlCheck(s) {
-						cUrlLocation <- s
-						return
-					}
 					fmt.Println(ok, time.Now().String())
 				} else {
-					fmt.Println("close(c)")
+					// fmt.Println("close(c)")
 					return
 				}
 				// default:
@@ -267,79 +222,76 @@ func getUrlLocationByCtxFunc(
 		}
 	}() //ctx
 	if err = chromedp.Run(timeCtx,
-		// chromedp.Navigate(navigateUrlStr),
+		chromedp.Navigate(navigateUrlStr),
+	); err != nil {
+		err = fmt.Errorf("打开网址失败(%s):%w", navigateUrlStr, err)
+		return "", err
+	}
+	if err = chromedp.Run(timeCtx,
 		task(navigateUrlStr, c),
-		// chromedp.Sleep(sleepTime),
 		chromedp.Location(&urlLocation),
-		// tasks,
 	); err != nil {
 		err = fmt.Errorf("获取Location失败(%s):%w", navigateUrlStr, err)
 		return "", err
 	}
+	fmt.Println("urlLocation.urlLocation", urlLocation)
 	if utils.UnionMsgUrlCheck(urlLocation) {
 		return urlLocation, nil
 	}
-	urlLocation2 := <-cUrlLocation
-	fmt.Println("cUrlLocation.urlLocation2", urlLocation2)
-	return urlLocation2, nil
+
+	select {
+	case urlLocation2 := <-cUrlLocation:
+		fmt.Println("cUrlLocation.urlLocation2", urlLocation2)
+		return urlLocation2, nil
+	case <-timeCtx.Done():
+		break
+		// default:
+	}
+	// urlLocation2 := <-cUrlLocation
+	// fmt.Println("cUrlLocation.urlLocation2", urlLocation2)
+	// return urlLocation2, nil
+	fmt.Println("urlLocation.urlLocation2", urlLocation)
+	return urlLocation, nil
 }
 
 func task(urlStr string, c chan<- string) chromedp.Tasks {
 	return chromedp.Tasks{
-		checkUnionUrl(urlStr, c),
+		checkUnionUrl(urlStr, 0, c),
 	}
 }
 
-func checkUnionUrl(urlStr string, c chan<- string) chromedp.ActionFunc {
+func checkUnionUrl(urlStr string, levelN int, c chan<- string) chromedp.ActionFunc {
 	return func(ctx context.Context) (err error) {
-		// if err = chromedp.Navigate(urlStr).Do(ctx); err != nil {
-		// 	fmt.Println("checkUnionUrl(err0)", err)
-		// 	return
-		// }
-		// var currUrl string
-		// if err = chromedp.Evaluate(`window.location.href`, &currUrl).Do(ctx); err != nil {
-		// 	fmt.Println("checkUnionUrl(err1)", err)
-		// 	return
-		// }
-		// log.Println("window.location.href: ", currUrl)
-		// if unionMsgUrlCheck(currUrl) {
-		// 	fmt.Println("unionMsgUrlCheck(currUrl)", currUrl)
-		// 	chromedp.Stop()
-		// }
-		var referrerUrl string
-		if err = chromedp.Evaluate(`window.document.referrer`, &referrerUrl).Do(ctx); err != nil {
-			fmt.Println("checkUnionUrl(referrerUrl)", err)
-			return
-		}
-		if len(referrerUrl) > 0 && strings.HasPrefix(referrerUrl, "http") {
-			c <- referrerUrl
-		}
-		// s := fmt.Sprintf("window.document.referrer:%s", referrerUrl)
-		// c <- s
-		// log.Println("window.document.referrer: ", referrerUrl)
-		if utils.UnionMsgUrlCheck(referrerUrl) {
-			fmt.Println("unionMsgUrlCheck(referrerUrl)", referrerUrl)
-			return
-		}
-
 		var locationUrl string
 		if err = chromedp.Location(&locationUrl).Do(ctx); err != nil {
 			fmt.Println("checkUnionUrl(err2)", err)
 			return
 		}
-		// s1 := fmt.Sprintf("chromedp.Location:%s", locationUrl)
-		// c <- s1
-		// log.Println("chromedp.Location: ", locationUrl)
+
 		if strings.EqualFold(locationUrl, urlStr) {
-			return checkUnionUrl(urlStr, c).Do(ctx)
+			maxN := 10000000000 //10s
+			if !utils.CanWaitUrlCheck(urlStr) && len(locationUrl) > 0 && strings.HasPrefix(locationUrl, "http") {
+				c <- locationUrl
+				return
+			}
+			if levelN > maxN {
+				c <- locationUrl
+				fmt.Println(levelN, locationUrl)
+				return
+			} else {
+				levelN++
+				chromedp.Sleep(1 * time.Nanosecond).Do(ctx)
+			}
+			return checkUnionUrl(urlStr, levelN, c).Do(ctx)
 		}
 		if len(locationUrl) > 0 && strings.HasPrefix(locationUrl, "http") {
 			c <- locationUrl
 		}
-		if utils.UnionMsgUrlCheck(locationUrl) {
-			// fmt.Println("unionMsgUrlCheck(locationUrl)", locationUrl)
-			return
-		}
+		// fmt.Println("Location(locationUrl2)", locationUrl)
+		// if utils.UnionMsgUrlCheck(locationUrl) {
+		// 	// fmt.Println("unionMsgUrlCheck(locationUrl)", locationUrl)
+		// 	return
+		// }
 		return
 	}
 }

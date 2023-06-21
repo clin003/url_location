@@ -37,3 +37,5 @@ log:
 chromedp_remote_debug_url: ""
 # chromedp远程调试端口 9222
 chromedp_remote_debug_port: ""
+# 支持跳转的域名列表 https://www.zzzdm.com/go|https://go.smzdm.com
+chromedp_can_wait_domain_list: ""

@@ -5,6 +5,14 @@ url_location
 
 CHROMEDP_REMOTE_DEBUG_URL
 
+//远程调试地址 端口 9222
+
+CHROMEDP_REMOTE_DEBUG_PORT
+
+//支持跳转的域名列表 
+
+CHROMEDP_CAN_WAIT_DOMAIN_LIST
+
 接口调用例子
 ```
 package main

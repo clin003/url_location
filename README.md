@@ -62,3 +62,8 @@ func main() {
 
 ## 交流群
 [@baicai_dev](https://t.me/baicai_dev)
+<!--
+## 赞赏
+[@一杯咖啡](https://3ae.cn/donations/)
+![赞赏白菜林，多少不重要，1元也是支持](/zanalipay.jpg)  ![赞赏白菜林，多少不重要，1元也是支持](/zanweixin.jpg)
+-->

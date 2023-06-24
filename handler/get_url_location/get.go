@@ -88,6 +88,10 @@ func getUrlLocationAndOriginUrl(urlStr string) (originUrl, locationUrl string, e
 }
 func getUrlLocation(urlStr string) (string, error) {
 	locationUrl, err := util.GetRedirectUrl(urlStr, false)
+	if err != nil {
+		locationUrl, err = util.GetRedirectUrlEx(urlStr, false)
+	}
+
 	if strings.EqualFold(locationUrl, urlStr) || err != nil {
 		locationUrl = ""
 	}
